@@ -7,6 +7,9 @@ const bodyparser = require('body-parser')
 
 sequelize.sync()
 
+const user = require('./controllers/userController');
+
+app.use("/user", user)
 app.use(require('./middleware/headers'));
 app.use(bodyparser.json());
 
