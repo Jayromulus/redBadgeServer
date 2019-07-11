@@ -19,7 +19,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         }
+        
     });
-
+    User.associate = function(models) {
+        User.belongsTo(models.League, {foreignKey: 'leagueId'})
+    }
     return User;
 }
