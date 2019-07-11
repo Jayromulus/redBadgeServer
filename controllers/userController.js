@@ -32,6 +32,9 @@ router.post('/signin', (req,res) => {
 router.post('/signup', (req,res) => {
     User.create({
         username: req.body.username,
+        fname: req.body.fname,
+        lname: req.body.lname,
+        email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 10),
     })
     .then(
