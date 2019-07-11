@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     User.associate = function(models) {
         User.belongsTo(models.League, {foreignKey: 'leagueId'})
+        User.hasMany(models.Portfolio, {foreignKey: 'portfolioId'})
     }
     return User;
 }
