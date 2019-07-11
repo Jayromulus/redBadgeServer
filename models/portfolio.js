@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         funds: DataTypes.FLOAT
     })
     Portfolio.associate = function(models) {
-        Portfolio.belongsTo(models.User, {foreignKey: 'portfolioId', as: 'portfolio'})
+        Portfolio.belongsTo(models.User, {foreignKey: 'userId'})
     }
     return Portfolio
 }
