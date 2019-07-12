@@ -8,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
           },
         username: {
             type: DataTypes.STRING,
-            allownull: false
+            allownull: false,
+            unique: true
         },
         leagueId: {
             type: DataTypes.UUID,
