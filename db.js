@@ -10,15 +10,18 @@ sequelize.authenticate().then(
     (err) => { console.log(err) }
 )
 
-const Models = {
-    //IMPORT ALL YOUR MODELS HERE WITH THE NAMES YOU RETURNED THEM AS IN YOUR MODELS. EXAMPLE BELOW
-    User: sequelize.import('./models/user'),
-    Portfolio: sequelize.import('./models/portfolio'),
-    League: sequelize.import('./models/leagueModel')
-}
-Object.keys(Models).forEach((modelName) => {
-    if ('associate' in Models[modelName]) {
-        Models[modelName].associate(Models);
-    }
-})
+const db = {};
+
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
+
+db.user = require('./models/user.js')(sequelize, Sequelize);
+db.portfolio = require('./models/portfolio.js')(sequelize, Sequelize);
+db.league = require('./models/leagueModel.js')(sequelize, Sequelize);
+
+
+db.portfolio.belongsTo(db.user);
+db.league.hasMany(db.user);
+db.user.belongsTo(db.league);
+
 module.exports = sequelize;
