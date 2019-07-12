@@ -5,7 +5,7 @@ const app = express()
 const sequelize  = require('./db')
 const bodyparser = require('body-parser')
 const portfolio = require('./controllers/portfolioController')
-
+const leagues = require('./controllers/leagueController')
 const user = require('./controllers/userController');
 
 
@@ -16,6 +16,7 @@ app.use(require('./middleware/headers'));
 app.use(bodyparser.json());
 app.use('/portfolio', portfolio)
 app.use("/user", user)
+app.use('/league', leagues)
 
 
 //app.use('/q', q)

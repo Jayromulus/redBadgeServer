@@ -1,6 +1,15 @@
+
 module.exports = function(sequelize, DataTypes){
-    return sequelize.define('league', {
-        wLeague: DataTypes.Array(DataTypes.STRING),
-        qLeague:DataTypes.Array(DataTypes.STRING)
+    const League = sequelize.define('league', {
+        id: {
+            type: DataTypes.UUID,
+            primaryKey: true,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false
+          },
+          
+        wLeague: DataTypes.ARRAY(DataTypes.STRING),
+        qLeague:DataTypes.ARRAY(DataTypes.STRING)
     })
+    return League
 }
