@@ -2,7 +2,8 @@ module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define ('user', {
         username: {
             type: DataTypes.STRING,
-            allownull: false
+            allownull: false,
+            unique: true
         },
         fName: {
             type: DataTypes.STRING,
@@ -23,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     User.associate = function(models) {
         User.belongsTo(models.League, {foreignKey: 'leagueId'})
-        User.hasMany(models.Portfolio, {foreignKey: 'portfolioId'})
+        User.hasOne(models.Portfolio, {foreignKey: 'portfolioId'})
     }
     return User;
 }
