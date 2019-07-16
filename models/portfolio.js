@@ -6,11 +6,12 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: DataTypes.UUIDV4,
             allowNull: false
           },
-        userId: {
-            type: DataTypes.UUID,
-            allowNull: false
-        },
-        stocks: DataTypes.ARRAY(DataTypes.STRING),
+        // userId: {
+        //     type: DataTypes.UUID,
+        //     allowNull: false
+        // },
+        coins: DataTypes.ARRAY(DataTypes.STRING),
+        quantity: DataTypes.ARRAY(DataTypes.FLOAT),
         owner: DataTypes.STRING,
         league: DataTypes.STRING,
         funds: DataTypes.FLOAT

@@ -10,10 +10,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allownull: false
         },
-        leagueId: {
-            type: DataTypes.UUID,
-            allowNull: false
-        },
+        // leagueId: {
+        //     type: DataTypes.UUID,
+        //     allowNull: false
+        // },
         fName: {
             type: DataTypes.STRING,
             allownull: false

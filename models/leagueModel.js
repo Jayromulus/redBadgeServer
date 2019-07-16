@@ -7,9 +7,8 @@ module.exports = function(sequelize, DataTypes){
             defaultValue: DataTypes.UUIDV4,
             allowNull: false
           },
-          
-        wLeague: DataTypes.ARRAY(DataTypes.STRING),
-        qLeague:DataTypes.ARRAY(DataTypes.STRING)
+        user: DataTypes.UUID,
+        league: DataTypes.STRING
     })
     return League
 }

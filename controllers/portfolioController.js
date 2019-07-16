@@ -4,10 +4,12 @@ let validateSession = require('../middleware/validateSession')
 
 router.post('/new', validateSession, (req, res) => {
     Portfolio.create({
-        stocks: req.body.portfolio.stocks,
+        coins: req.body.portfolio.coins,
+        quantity: req.body.portfolio.quantity,
         owner: req.user.username,
         league: req.body.portfolio.league,
-        funds: req.body.portfolio.funds
+        funds: req.body.portfolio.funds,
+        // userId: req.user.userId
     }).then(createSucess = (portfolio) => {
         res.status(200).json({
             portfolio: portfolio,
