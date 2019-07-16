@@ -29,7 +29,7 @@ router.get('/:page', validateSession, (req, res) => {
         let pages = Math.ceil(data.count / limit);
                     offset = limit * (page - 1)
         Portfolio.findAll({
-            attributes: ['id', 'stocks', 'owner', 'league', 'funds'],
+            attributes: ['id', 'coins', 'quantity', 'owner', 'league', 'funds'],
             limit: limit,
             offset: offset,
             $sort: {id: 1}

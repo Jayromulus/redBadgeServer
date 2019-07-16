@@ -9,7 +9,7 @@ const leagues = require('./controllers/leagueController')
 const user = require('./controllers/userController');
 
 
-sequelize.sync({force:true})
+sequelize.sync()
 
 
 app.use(require('./middleware/headers'));
