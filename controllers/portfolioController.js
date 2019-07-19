@@ -1,63 +1,81 @@
-let router = require('express').Router();
-let Portfolio = require('../db').import('../models/portfolio');
-let validateSession = require('../middleware/validateSession')
+const router = require('express').Router();
+var sequelize = require('../db')
+var Portfolio = sequelize.Portfolio;
+var User = sequelize.User;
 
-router.post('/new', validateSession, (req, res) => {
-    Portfolio.create({
-        coins: req.body.portfolio.coins,
-        quantity: req.body.portfolio.quantity,
-        owner: req.user.username,
-        league: req.body.portfolio.league,
-        funds: req.body.portfolio.funds,
-        // userId: req.user.userId
-    }).then(createSucess = (portfolio) => {
-        res.status(200).json({
-            portfolio: portfolio,
-            message: 'Portfolio Created'
-        })
-    },
-    createError = err => res.send(500, err)
-    )
-})
+  router.get('/portfoliolist', (req, res) => {
+      Portfolio.findAll({
+        include: [{
+          model: User,
+          as: 'owner'
+        }],
+      })
+      .then((portfolios) => res.status(200).send(portfolios))
+      .catch((error) => { res.status(400).send(error); });
+  });
 
-router.get('/:page', validateSession, (req, res) => {
-    let limit = 10;
-    let offset = 0;
-    Portfolio.findAndCountAll()
-    .then((data) => {
-        let page = req.params.page;
-        let pages = Math.ceil(data.count / limit);
-                    offset = limit * (page - 1)
-        Portfolio.findAll({
-            attributes: ['id', 'coins', 'quantity', 'owner', 'league', 'funds'],
-            limit: limit,
-            offset: offset,
-            $sort: {id: 1}
-        })
-        .then((users) => {
-            res.status(200).json({'result': users, 'count': data.count, 'pages': pages})
-        })
-    })
-    createError = err => res.status(500, err)
-})
+  router.get('/portfolioId', (req, res) => {
+      Portfolio.findById(req.params.id, {
+        include: [{
+          model: User,
+          as: 'owner'
+        }],
+      })
+      .then((portfolio) => {
+        if (!portfolio) {
+          return res.status(404).send({
+            message: 'Portfolio Not Found',
+          });
+        }
+        return res.status(200).send(portfolio);
+      })
+      .catch((error) => res.status(400).send(error));
+  });
 
-router.put('/update/:id', validateSession, (req, res) => {
-    Portfolio.update(req.body.portfolio, {
-        where: {id: req.params.id},
-        returning: true
-    }).then(
-        portfolio => res.status(200).json(portfolio)
-    ).catch(
-        err => res.status(500).json({ error: err })
-    )
-})
+  router.post('/addPortfolio', (req, res) => {
+      Portfolio.create({
+        coins: [],
+        quantity: [],
+        funds: 100000,
+        
+      })
+      .then((portfolio) => res.status(201).send(portfolio))
+      .catch((error) => res.status(400).send(error));
+  });
 
-router.delete('/delete/:id', validateSession, (req, res) => {
-    Portfolio.destroy({where: {id: req.params.id}}).then(
-        portfolio => res.status(200).json(portfolio)
-    ).catch(
-        err => res.status(500).json({error: err })
-    )
-})
+  router.put('/updatePortfolio', (req, res) => {
+      Portfolio.findById(req.User.id)
+        .then(portfolio => {
+        if (!portfolio) {
+          return res.status(404).send({
+            message: 'Portfolio Not Found',
+          });
+        }
+        return Portfolio
+          .update({
+            coins: req.body.coins,
+            quantity: req.body.quantity,
+            funds: req.body.funds
+          })
+          .then(() => res.status(200).send(portfolio))
+          .catch((error) => res.status(400).send(error));
+      })
+      .catch((error) => res.status(400).send(error));
+  });
 
-module.exports = router
+  router.delete('/deletePortfolio', (req, res) => {
+      Portfolio.findById(req.user.id)
+      .then(portfolio => {
+        if (!portfolio) {
+          return res.status(400).send({
+            message: 'Portfolio Not Found',
+          });
+        }
+        return portfolio
+          .destroy()
+          .then(() => res.status(204).send())
+          .catch((error) => res.status(400).send(error));
+      })
+      .catch((error) => res.status(400).send(error));
+  })
+module.exports= router
