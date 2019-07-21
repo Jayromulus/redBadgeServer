@@ -1,73 +1,105 @@
-var express = require('express');
-var router = express.Router();
-var sequelize = require('../db');
-var User = sequelize.import('../models/user');
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
+const router = require('express').Router();
+var sequelize = require('../db')
+var User = sequelize.User;
+var Portfolio = sequelize.Portfolio;
 
-router.post('/signin', (req,res) => {
-    User.findOne({where : {username: req.body.user.username}})
+router.get('/userlist', (req, res) => {
+    User.findAll({
+      include: [{
+        model: Portfolio,
+        as: 'Portfolio'
+      }
+      ],
+    })
+    .then((users) => res.status(200).send(users))
+    .catch((error) => { res.status(400).send(error); });
+});
+
+router.get('/:id', (req, res) => { 
+    User.findById(req.body.id, {
+      // include: [{
+      //   model: Portfolio,
+      //   as: 'portfolio'
+      // }],
+    })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({
+          message: 'User Not Found',
+        });
+      }
+      return res.status(200).send(user);
+    })
+    .catch((error) => res.status(400).json(error));
+});
+
+router.post('/userWithPortfolio', async (req, res) => {
+  try {
+    const myUser = await User.create({
+      username: req.body.username,
+      fName: req.body.fName,
+      lName: req.body.lName,
+      email: req.body.email,
+      password: req.body.password,
+    });
+
+    const myPortfolio = await Portfolio.create({
+      coins: [],
+      quantity: [],
+      funds: 100000
+    })
+
+    await myPortfolio.setUser(myUser);
+
+    res.send({
+      userCreated: myUser.id,
+      portfolioCreated: myPortfolio.id
+    })
+
+  } catch (err) {
+
+    res.send(err.message)
+  }
+})
+
+
+router.put('/userUpdate', (req, res) => {
+    User.findById(req.params.id, {
+      include: [{
+        model: Portfolio,
+        as: 'portfolio'
+      }],
+    })
     .then(user => {
-        if(user){
-            bcrypt.compare(req.body.user.password, user.password, (err,matches)=>{
-                if(matches){
-                    let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
-                    res.json({
-                        user: user,
-                        message: "successfully authenticated",
-                        sessionToken: token
-                    })
-                } else {
-                    res.status(502).send({error : err + ' bad gateway'});
-                }
-            })
-        } else {
-            res.status(500).send({error: 'failed to authenticate'});
-        }
+      if (!user) {
+        return res.status(404).send({
+          message: 'User Not Found',
+        });
+      }
+      return user
+        .update({
+          username: req.body.username || user.username,
+          password: req.body.password || user.password,
+        })
+        .then(() => res.status(200).send(user))
+        .catch((error) => res.status(400).send(error));
     })
-    .catch(() => res.status(501).send({error: 'failed to process'}))
-});
+    .catch((error) => res.status(400).send(error));
+})
 
-
-router.post('/signup', (req,res) => {
-    User.create({
-        username: req.body.user.username,
-        fName: req.body.user.fName,
-        lName: req.body.user.lName,
-        email: req.body.user.email,
-        password: bcrypt.hashSync(req.body.user.password, 10),
+router.delete('/deleteUser', (req, res) => {
+    User.findById(req.params.id)
+    .then(user => {
+      if (!user) {
+        return res.status(400).send({
+          message: 'User Not Found',
+        });
+      }
+      return user
+        .destroy()
+        .then(() => res.status(204).send())
+        .catch((error) => res.status(400).send(error));
     })
-    .then(
-        function createSuccess(user){
-            let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
-            res.json({
-                        user: user,
-                        message: "user created",
-                        sessionToken: token
-                    });
-        },
-        function createError (err) {
-         res.send(500,err)
-        }
-    );
-});
-
-router.get("/", (req, res) => {
-    User.findAll()
-        .then(user => res.status(200).json(user))
-        .catch(err => res.status(500).json({error: err}))
-  });
-
-router.put('/:id',(req, res) => {
-    User.update(req.body.user, { where: { id: req.params.id }, returning: true, })
-      .then(user => res.status(200).json(user))
-      .catch(err => res.status(500).json({ error: err}))
-  });
-
-  router.delete('/:id', (req, res) => {
-      User.destroy({where: {id: req.params.id}})
-        .then(user => res.status(200).json(user))
-        .catch(err => res.status(500).json({error: err}))
-  });
-
-module.exports = router;
+    .catch((error) => res.status(400).send(error));
+})
+module.exports= router

@@ -1,44 +1,113 @@
-let express = require('express');
-let router = express.Router();
-let League = require('../db').import('../Models/leagueModel')
-const validateSession = require('../middleware/validateSession')
+const router = require('express').Router();
+var sequelize = require('../db')
+var League = sequelize.League;
+var User = sequelize.User;
+var Portfolio = sequelize.Portfolio;
 
-router.post("/weekly", (req,res)=> {
-    const wLeague= {
-        user: username
+
+router.get('/getOldLeague', (req, res) => {
+  League.findAll({
+    include: [{
+      model: User,
+      as: 'users'
+    }],
+    // where : { isCurrent: false }
+  })
+    .then((league) => res.status(200).send(league))
+    .catch((error) => { res.status(400).send(error); });
+});
+
+router.get('/getCurrentLeague', (req, res) => {
+  League.findAll({
+    include: [{
+      model: User,
+      where: { isActive: true },
+      required: false,
+      attributes: ['id', 'username'],
+      // through: { attributes: [] },
+      include: [{
+        model: Portfolio,
+        // as: 'userPortfolio',
+        required: false,
+        attributes: ['coins', 'quantity', 'funds'],
+        // through: { attributes: [] }
+      }]
     }
-    League.create(wLeague)
-    .then(wLeague=> res.status(200).json(wLeague))
-    .catch(err => res.status(500).json({error: err}));
-})
-router.post("/quarterly", validateSession, (req, res)=> {
-    const qLeague ={
-        user: username
-    }
-    League.create(qLeague)
-    .then(qLeague => res.status(200).json(qLeague))
-    .catch(err => res.status(500).json({error:err}));
-})
+    ],
+    where: { isCurrent: true }
+  })
+    .then((league) => {
+      if (!league) {
+        return res.status(404).send({
+          message: 'League Not Found',
+        });
+      }
+      return res.status(200).send(league);
+    })
+    .catch((error) => {
+      res.status(400).send(error);
+      console.log(error)
+    })
+});
 
-router.get('/weekly', validateSession, (req,res)=>{
-    League.findAll({where: {owner: req.user}})
-    .then(user=> res.status(200).json(user))
-    .catch( err=> res.status(500).json({error: err}));
-})
-router.get('/quarterly', validateSession, (req,res)=>{
-    League.findAll({where: {owner: req.user}})
-    .then(user=> res.status(200).json(user))
-    .catch( err=> res.status(500).json({error: err}));
-})
-router.delete('/weekly/user', validateSession, (req,res)=> {
-    League.destroy({where: {id: req.params.id, owner: req.user.id}})
-    .then(user=> res.status(200).json(user))
-    .catch(err=> res.status(500).json({error:err}))
-})
-router.delete('/quarterly/user', validateSession, (req,res)=> {
-    League.destroy({where: {id: req.params.id, owner: req.user.id}})
-    .then(user=> res.status(200).json(user))
-    .catch(err=> res.status(500).json({error:err}))
-})
 
+router.post('/leagueWithUsers', async (req, res) => {
+  try {
+    const newLeague = await League.create({
+      isCurrent: true
+    });
+
+    const roster = await User.findAll({
+      where: { isActive: true },
+      required: false,
+      attributes: ['id', 'username'],
+      through: { attributes: [] }
+
+    });
+
+    await newLeague.setUsers(roster);
+    res.send({
+      leagueCreated: newLeague.id,
+    });
+
+  } catch (err) {
+
+    res.send(err.message)
+  }
+});
+
+router.put('/updateLeague', (req, res) => {
+  League.findById(req.params.id)
+    .then(league => {
+      if (!league) {
+        return res.status(404).send({
+          message: 'League Not Found',
+        });
+      }
+      return league
+        .update({
+          isCurrent: false
+        })
+        .then(() => res.status(200).send(role))
+        .catch((error) => res.status(400).send(error));
+    })
+    .catch((error) => res.status(400).send(error));
+});
+
+router.delete('/deleteLeague', (req, res) => {
+  League.findById(req.params.id)
+    .then(league => {
+      if (!league) {
+        return res.status(400).send({
+          message: 'League Not Found',
+        });
+      }
+      return league
+        .destroy()
+        .then(() => res.status(204).send())
+        .catch((error) => res.status(400).send(error));
+    })
+    .catch((error) => res.status(400).send(error));
+},
+);
 module.exports = router

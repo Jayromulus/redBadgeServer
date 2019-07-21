@@ -1,27 +1,48 @@
 const Sequelize = require('sequelize');
-
-const sequelize = new Sequelize(process.env.NAME, 'postgres', process.env.PASS, {
-    host: 'localhost',
-    dialect: 'postgres',
-});
-
-sequelize.authenticate().then(
-    () => { console.log('connected to postgres database') },
-    (err) => { console.log(err) }
-)
-
 const db = {};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
 
-db.user = require('./models/user.js')(sequelize, Sequelize);
-db.portfolio = require('./models/portfolio.js')(sequelize, Sequelize);
-db.league = require('./models/leagueModel.js')(sequelize, Sequelize);
+const sequelize = new Sequelize({
+  username: "postgres",
+  password: "123trees",
+  database: "redx",
+  host: 'localhost',
+  dialect: 'postgres'
+});
 
 
-db.portfolio.belongsTo(db.user);
-db.league.hasMany(db.user);
-db.user.belongsTo(db.league);
+sequelize.authenticate()
+  .then(() => console.log('Postgres db is connected'))
+  .catch(err => console.log(err))
 
-module.exports = sequelize;
+
+  db.Sequelize = Sequelize;
+  db.sequelize = sequelize;
+  
+  db.User = require('./models/user')(sequelize, Sequelize);
+  db.Portfolio = require('./models/portfolio')(sequelize, Sequelize);
+  db.League = require('./models/league')(sequelize, Sequelize);
+  db.UserLeague= require('./models/userLeague')(sequelize, Sequelize);
+
+  db.Portfolio.belongsTo(db.User, {
+    foreignKey: 'userId',
+    targetKey: 'id'
+  })
+  db.User.hasOne(db.Portfolio)
+  db.League.belongsToMany(db.User, {
+    through: 'userLeague',
+    foreignKey: 'userId',
+    targetKey: 'leagueId'
+  });
+  db.User.belongsToMany(db.League, {
+    through: 'userLeague',
+    foreignKey: 'leagueId',
+    targetKey: 'userId'
+  });
+
+  
+  
+  
+  
+  module.exports = db;
+      
