@@ -15,13 +15,12 @@ router.get('/userlist', (req, res) => {
     .catch((error) => { res.status(400).send(error); });
 });
 
-router.get('/getuser', (req, res) => {
-  
-    User.findById(req.params.id, {
-      include: [{
-        model: Portfolio,
-        as: 'portfolio'
-      }],
+router.get('/:id', (req, res) => { 
+    User.findById(req.body.id, {
+      // include: [{
+      //   model: Portfolio,
+      //   as: 'portfolio'
+      // }],
     })
     .then((user) => {
       if (!user) {
@@ -34,27 +33,12 @@ router.get('/getuser', (req, res) => {
     .catch((error) => res.status(400).json(error));
 });
 
-router.post('/createuser', (req, res) => {
-  
-    User.create({
+router.post('/userWithPortfolio', async (req, res) => {
+  try {
+    const myUser = await User.create({
       username: req.body.username,
       fName: req.body.fName,
       lName: req.body.lName,
-      email: req.body.email,
-      password: req.body.password,
-    })
-    .then((user) => res.status(201).send(user))
-    .catch((error) => res.status(400).send(error));
-});
-
-router.post('/userWithPortfolio', async (req, res) => {
-  try {
-
-    console.log(req.body.password)
-    const myUser = await User.create({
-      username: req.body.username,
-      fname: req.body.fname,
-      lname: req.body.lname,
       email: req.body.email,
       password: req.body.password,
     });
@@ -76,28 +60,6 @@ router.post('/userWithPortfolio', async (req, res) => {
 
     res.send(err.message)
   }
-    // User.create({
-    //   username: req.body.username,
-    //   fname: req.body.fname,
-    //   lname: req.body.lname,
-    //   email: req.body.email,
-    //   password: req.body.password,
-    // })
-    // .then(async (user) => {
-    //   console.log(user);
-    //   let myPort= await Portfolio.create({
-    //     coins: [],
-    //     quantity: [],
-    //     funds: 100000
-    //   })
-    //   try {
-    //     await myPort.setUser(user)
-    //   } catch (error) {
-        
-    //   }
-    //   res.status(201).send(user)}
-    // )
-    // .catch((error) => res.status(400).send(error));
 })
 
 

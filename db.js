@@ -24,16 +24,20 @@ sequelize.authenticate()
   db.League = require('./models/league')(sequelize, Sequelize);
   db.UserLeague= require('./models/userLeague')(sequelize, Sequelize);
 
-  db.Portfolio.belongsTo(db.User);
+  db.Portfolio.belongsTo(db.User, {
+    foreignKey: 'userId',
+    targetKey: 'id'
+  })
+  db.User.hasOne(db.Portfolio)
   db.League.belongsToMany(db.User, {
     through: 'userLeague',
-    as: 'users',
-    foreignKey: 'userId'
+    foreignKey: 'userId',
+    targetKey: 'leagueId'
   });
   db.User.belongsToMany(db.League, {
     through: 'userLeague',
-    as: 'league',
-    foreignKey: 'leagueId'
+    foreignKey: 'leagueId',
+    targetKey: 'userId'
   });
 
   
