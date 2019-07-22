@@ -25,7 +25,7 @@ sequelize.authenticate()
   db.UserLeague= require('./models/userLeague')(sequelize, Sequelize);
 
   db.Portfolio.belongsTo(db.User, {
-    foreignKey: 'userId',
+    // foreignKey: 'userId',
     targetKey: 'id'
   })
   db.User.hasOne(db.Portfolio)

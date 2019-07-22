@@ -9,7 +9,6 @@ router.get('/getOldLeague', (req, res) => {
   League.findAll({
     include: [{
       model: User,
-      as: 'users'
     }],
     // where : { isCurrent: false }
   })
