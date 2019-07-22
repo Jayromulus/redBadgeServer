@@ -2,6 +2,8 @@ const router = require('express').Router();
 var sequelize = require('../db')
 var User = sequelize.User;
 var Portfolio = sequelize.Portfolio;
+var bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
 
 
 router.get('/:id',(req, res) => { 
@@ -29,7 +31,7 @@ router.post('/signup', async (req, res) => {
       fName: req.body.fName,
       lName: req.body.lName,
       email: req.body.email,
-      password: req.body.password,
+      password: bcrypt.hashSync(req.body.password, 10),
     });
 
     const myPortfolio = await Portfolio.create({
@@ -52,11 +54,13 @@ router.post('/signup', async (req, res) => {
 })
 
 router.post('/signin', (req,res) => {
-  User.findOne({where : {username: req.body.user.username}})
+  User.findOne({where : {username: req.body.username}})
   .then(user => {
       if(user){
-          bcrypt.compare(req.body.user.password, user.password, (err,matches)=>{
-              if(matches){
+        bcrypt.compare(req.body.password, user.password, (err,matches)=>{
+          console.log('b', req.body.password)
+          console.log('u', user.password)
+          if(matches) {
                   let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
                   res.json({
                       user: user,
