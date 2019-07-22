@@ -22,4 +22,4 @@ app.use('/league', league)
 //app.use('/q', q)
 //app.use('/w', w)
 
-app.listen(process.env.PORT || 3000, () => {console.log(`app is listening on port ${process.env.PORT}`)})
+app.listen( 3000, () => {console.log(`app is listening on port 3000`)})
