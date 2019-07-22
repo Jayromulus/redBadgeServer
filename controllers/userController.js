@@ -4,9 +4,10 @@ var User = sequelize.User;
 var Portfolio = sequelize.Portfolio;
 var bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
+var validateSession = require('../middleware/validateSession');
 
 
-router.get('/:id',(req, res) => { 
+router.get('/:id', validateSession, (req, res) => { 
     User.findAll({ where: { id: req.params.id }, returning: true,
       include: [{
         model: Portfolio,
@@ -58,8 +59,6 @@ router.post('/signin', (req,res) => {
   .then(user => {
       if(user){
         bcrypt.compare(req.body.password, user.password, (err,matches)=>{
-          console.log('b', req.body.password)
-          console.log('u', user.password)
           if(matches) {
                   let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
                   res.json({
@@ -79,7 +78,7 @@ router.post('/signin', (req,res) => {
 });
 
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validateSession, (req, res) => {
     User.findAll({ where: { id: req.params.id }})
     .then(user => {
       if (!user) {
@@ -98,7 +97,7 @@ router.put('/:id', (req, res) => {
     .catch((error) => res.status(400).send(error));
 })
 
-router.delete('/delete', (req, res) => {
+router.delete('/delete', validateSession, (req, res) => {
     User.findById(req.params.id)
     .then(user => {
       if (!user) {

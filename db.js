@@ -31,13 +31,13 @@ sequelize.authenticate()
   db.User.hasOne(db.Portfolio)
   db.League.belongsToMany(db.User, {
     through: 'userLeague',
-    foreignKey: 'userId',
-    targetKey: 'leagueId'
+    foreignKey: 'leagueId',
+    targetKey: 'userId'
   });
   db.User.belongsToMany(db.League, {
     through: 'userLeague',
-    foreignKey: 'leagueId',
-    targetKey: 'userId'
+    foreignKey: 'userId',
+    targetKey: 'leagueId'
   });
 
   

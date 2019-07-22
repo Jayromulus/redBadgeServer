@@ -1,10 +1,11 @@
 const router = require('express').Router();
 var sequelize = require('../db')
 var Portfolio = sequelize.Portfolio;
+var validateSession = require('../middleware/validateSession');
 
 
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validateSession, (req, res) => {
   Portfolio.findAll({ where: { id: req.params.id }})
   .then(portfolio => {
     if (!portfolio) {

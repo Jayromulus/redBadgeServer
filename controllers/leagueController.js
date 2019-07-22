@@ -3,9 +3,10 @@ var sequelize = require('../db')
 var League = sequelize.League;
 var User = sequelize.User;
 var Portfolio = sequelize.Portfolio;
+var validateSession = require('../middleware/validateSession');
 
 
-router.get('/getOldLeague', (req, res) => {
+router.get('/getOldLeague', validateSession,  (req, res) => {
   League.findAll({
     // where : { isCurrent: false },
     include: [{
@@ -18,7 +19,7 @@ router.get('/getOldLeague', (req, res) => {
     .catch((error) => { res.status(400).send(error); });
 });
 
-router.get('/getCurrentLeague', (req, res) => {
+router.get('/current', validateSession,  (req, res) => {
   League.findAll({
     include: [{
       model: User,
@@ -49,7 +50,7 @@ router.get('/getCurrentLeague', (req, res) => {
 });
 
 
-router.post('/leagueWithUsers', async (req, res) => {
+router.post('/current', validateSession, async (req, res) => {
   try {
     const newLeague = await League.create({
       isCurrent: true
@@ -74,7 +75,7 @@ router.post('/leagueWithUsers', async (req, res) => {
   }
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validateSession, (req, res) => {
   League.findAll({ where: { id: req.params.id }})
   .then(league => {
     if (!league) {
@@ -92,20 +93,5 @@ router.put('/:id', (req, res) => {
   .catch((error) => res.status(400).send(error));
 })
 
-router.delete('/deleteLeague', (req, res) => {
-  League.findById(req.params.id)
-    .then(league => {
-      if (!league) {
-        return res.status(400).send({
-          message: 'League Not Found',
-        });
-      }
-      return league
-        .destroy()
-        .then(() => res.status(204).send())
-        .catch((error) => res.status(400).send(error));
-    })
-    .catch((error) => res.status(400).send(error));
-},
-);
+
 module.exports = router
