@@ -22,7 +22,7 @@ router.get('/:id',(req, res) => {
     .catch((error) => res.status(400).json(error));
 });
 
-router.post('/userWithPortfolio', async (req, res) => {
+router.post('/signup', async (req, res) => {
   try {
     const myUser = await User.create({
       username: req.body.username,
@@ -51,6 +51,29 @@ router.post('/userWithPortfolio', async (req, res) => {
   }
 })
 
+router.post('/signin', (req,res) => {
+  User.findOne({where : {username: req.body.user.username}})
+  .then(user => {
+      if(user){
+          bcrypt.compare(req.body.user.password, user.password, (err,matches)=>{
+              if(matches){
+                  let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
+                  res.json({
+                      user: user,
+                      message: "successfully authenticated",
+                      sessionToken: token
+                  })
+              } else {
+                  res.status(502).send({error : err + ' bad gateway'});
+              }
+          })
+      } else {
+          res.status(500).send({error: 'failed to authenticate'});
+      }
+  })
+  .catch(() => res.status(501).send({error: 'failed to process'}))
+});
+
 
 router.put('/:id', (req, res) => {
     User.findAll({ where: { id: req.params.id }})
@@ -71,7 +94,7 @@ router.put('/:id', (req, res) => {
     .catch((error) => res.status(400).send(error));
 })
 
-router.delete('/deleteUser', (req, res) => {
+router.delete('/delete', (req, res) => {
     User.findById(req.params.id)
     .then(user => {
       if (!user) {

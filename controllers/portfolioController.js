@@ -1,7 +1,7 @@
 const router = require('express').Router();
 var sequelize = require('../db')
 var Portfolio = sequelize.Portfolio;
-var User = sequelize.User;
+
 
 
 router.put('/:id', (req, res) => {
@@ -9,7 +9,7 @@ router.put('/:id', (req, res) => {
   .then(portfolio => {
     if (!portfolio) {
       return res.status(404).send({
-        message: 'User Not Found',
+        message: 'Portfolio Not Found',
       });
     }
     return Portfolio
@@ -26,14 +26,14 @@ router.put('/:id', (req, res) => {
 
 
   router.delete('/deletePortfolio', (req, res) => {
-      Portfolio.findById(req.user.id)
+    Portfolio.findAll({ where: { id: req.params.id }})
       .then(portfolio => {
         if (!portfolio) {
           return res.status(400).send({
             message: 'Portfolio Not Found',
           });
         }
-        return portfolio
+        return Portfolio
           .destroy()
           .then(() => res.status(204).send())
           .catch((error) => res.status(400).send(error));
