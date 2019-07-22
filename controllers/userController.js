@@ -28,10 +28,10 @@ router.get('/:id', validateSession, (req, res) => {
 router.post('/signup', async (req, res) => {
   try {
     const myUser = await User.create({
-      username: req.body.username,
-      fName: req.body.fName,
-      lName: req.body.lName,
-      email: req.body.email,
+      username: req.body.user.username,
+      fName: req.body.user.fName,
+      lName: req.body.user.lName,
+      email: req.body.user.email,
       password: bcrypt.hashSync(req.body.password, 10),
     });
 
@@ -55,10 +55,10 @@ router.post('/signup', async (req, res) => {
 })
 
 router.post('/signin', (req,res) => {
-  User.findOne({where : {username: req.body.username}})
+  User.findOne({where : {username: req.body.user.username}})
   .then(user => {
       if(user){
-        bcrypt.compare(req.body.password, user.password, (err,matches)=>{
+        bcrypt.compare(req.body.user.password, user.password, (err,matches)=>{
           if(matches) {
                   let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
                   res.json({
@@ -88,8 +88,8 @@ router.put('/:id', validateSession, (req, res) => {
       }
       return User
       .update(req.body, { where: { id: req.params.id },
-          username: req.body.username || user.username,
-          password: req.body.password || user.password,
+          username: req.body.user.username || user.username,
+          password: req.body.user.password || user.password,
         })
         .then(() => res.status(200).send(user))
         .catch((error) => res.status(400).send(error));
