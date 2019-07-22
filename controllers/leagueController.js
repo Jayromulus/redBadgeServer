@@ -7,10 +7,12 @@ var Portfolio = sequelize.Portfolio;
 
 router.get('/getOldLeague', (req, res) => {
   League.findAll({
+    // where : { isCurrent: false },
     include: [{
       model: User,
-    }],
-    // where : { isCurrent: false }
+      required: false,
+      attributes: ['id', 'username']
+    }]
   })
     .then((league) => res.status(200).send(league))
     .catch((error) => { res.status(400).send(error); });
@@ -23,13 +25,10 @@ router.get('/getCurrentLeague', (req, res) => {
       where: { isActive: true },
       required: false,
       attributes: ['id', 'username'],
-      // through: { attributes: [] },
       include: [{
         model: Portfolio,
-        // as: 'userPortfolio',
         required: false,
         attributes: ['coins', 'quantity', 'funds'],
-        // through: { attributes: [] }
       }]
     }
     ],
@@ -75,23 +74,23 @@ router.post('/leagueWithUsers', async (req, res) => {
   }
 });
 
-router.put('/updateLeague', (req, res) => {
-  League.findById(req.params.id)
-    .then(league => {
-      if (!league) {
-        return res.status(404).send({
-          message: 'League Not Found',
-        });
-      }
-      return league
-        .update({
-          isCurrent: false
-        })
-        .then(() => res.status(200).send(role))
-        .catch((error) => res.status(400).send(error));
-    })
-    .catch((error) => res.status(400).send(error));
-});
+router.put('/:id', (req, res) => {
+  League.findAll({ where: { id: req.params.id }})
+  .then(league => {
+    if (!league) {
+      return res.status(404).send({
+        message: 'User Not Found',
+      });
+    }
+    return League
+    .update(req.body, { where: { id: req.params.id },
+        isCurrent: req.body.isCurrent || league.isCurrent
+      })
+      .then(() => res.status(200).send(league))
+      .catch((error) => res.status(400).send(error));
+  })
+  .catch((error) => res.status(400).send(error));
+})
 
 router.delete('/deleteLeague', (req, res) => {
   League.findById(req.params.id)
