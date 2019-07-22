@@ -3,24 +3,13 @@ var sequelize = require('../db')
 var User = sequelize.User;
 var Portfolio = sequelize.Portfolio;
 
-router.get('/userlist', (req, res) => {
-    User.findAll({
+
+router.get('/:id',(req, res) => { 
+    User.findAll({ where: { id: req.params.id }, returning: true,
       include: [{
         model: Portfolio,
-        as: 'Portfolio'
-      }
-      ],
-    })
-    .then((users) => res.status(200).send(users))
-    .catch((error) => { res.status(400).send(error); });
-});
-
-router.get('/:id', (req, res) => { 
-    User.findById(req.body.id, {
-      // include: [{
-      //   model: Portfolio,
-      //   as: 'portfolio'
-      // }],
+        attributes: ['id','coins', 'quantity', 'funds']
+      }],
     })
     .then((user) => {
       if (!user) {
@@ -63,21 +52,16 @@ router.post('/userWithPortfolio', async (req, res) => {
 })
 
 
-router.put('/userUpdate', (req, res) => {
-    User.findById(req.params.id, {
-      include: [{
-        model: Portfolio,
-        as: 'portfolio'
-      }],
-    })
+router.put('/:id', (req, res) => {
+    User.findAll({ where: { id: req.params.id }})
     .then(user => {
       if (!user) {
         return res.status(404).send({
           message: 'User Not Found',
         });
       }
-      return user
-        .update({
+      return User
+      .update(req.body, { where: { id: req.params.id },
           username: req.body.username || user.username,
           password: req.body.password || user.password,
         })
