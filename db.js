@@ -2,10 +2,10 @@ const Sequelize = require('sequelize');
 const db = {};
 
 
-const sequelize = new Sequelize({
+const sequelize = new Sequelize(process.env.DATABASE_URL || `postgresql://postgres:${encodeURIComponent(process.env.PASS)}@localhost/redx`,{
   username: "postgres",
-  password: "123trees",
-  database: "redx",
+  password: process.env.PASS,
+  database: process.env.NAME,
   host: 'localhost',
   dialect: 'postgres'
 });
@@ -25,7 +25,6 @@ sequelize.authenticate()
   db.UserLeague= require('./models/userLeague')(sequelize, Sequelize);
 
   db.Portfolio.belongsTo(db.User, {
-    // foreignKey: 'userId',
     targetKey: 'id'
   })
   db.User.hasOne(db.Portfolio)
