@@ -8,7 +8,7 @@ var validateSession = require('../middleware/validateSession');
 
 router.get('/getOldLeague', validateSession,  (req, res) => {
   League.findAll({
-    // where : { isCurrent: false },
+    where : { isCurrent: false },
     include: [{
       model: User,
       required: false,

@@ -97,8 +97,8 @@ router.put('/:id', validateSession, (req, res) => {
     .catch((error) => res.status(400).send(error));
 })
 
-router.delete('/delete', validateSession, (req, res) => {
-    User.findById(req.params.id)
+router.delete('/:id', validateSession, (req, res) => {
+    User.findAll({ where: { id: req.params.id }})
     .then(user => {
       if (!user) {
         return res.status(400).send({
