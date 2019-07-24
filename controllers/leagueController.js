@@ -29,7 +29,7 @@ router.get('/current', validateSession,  (req, res) => {
       include: [{
         model: Portfolio,
         required: false,
-        attributes: ['coins', 'quantity', 'funds'],
+        attributes: ['coins', 'quantity', 'funds', 'assets'],
       }]
     }
     ],
