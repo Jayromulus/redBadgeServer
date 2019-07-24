@@ -32,7 +32,7 @@ router.post('/signup', async (req, res) => {
       fName: req.body.user.fName,
       lName: req.body.user.lName,
       email: req.body.user.email,
-      password: bcrypt.hashSync(req.body.password, 10),
+      password: bcrypt.hashSync(req.body.user.password, 10),
     });
 
     const myPortfolio = await Portfolio.create({
