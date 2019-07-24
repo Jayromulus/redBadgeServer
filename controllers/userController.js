@@ -38,7 +38,8 @@ router.post('/signup', async (req, res) => {
     const myPortfolio = await Portfolio.create({
       coins: [],
       quantity: [],
-      funds: 100000
+      funds: 100000,
+      assets: 0
     })
 
     await myPortfolio.setUser(myUser);
