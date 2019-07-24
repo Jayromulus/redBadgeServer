@@ -9,7 +9,7 @@ const league= require('./controllers/leagueController')
 const portfolio= require('./controllers/portfolioController')
 
 
-db.sequelize.sync()
+db.sequelize.sync({force:true})
 
 
 app.use(require('./middleware/headers'));
