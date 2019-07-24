@@ -11,7 +11,7 @@ router.get('/:id', validateSession, (req, res) => {
     User.findAll({ where: { id: req.params.id }, returning: true,
       include: [{
         model: Portfolio,
-        attributes: ['id','coins', 'quantity', 'funds']
+        attributes: ['id','coins', 'quantity', 'funds', 'assets']
       }],
     })
     .then((user) => {

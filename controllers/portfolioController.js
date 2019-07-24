@@ -17,7 +17,8 @@ router.put('/:id', validateSession, (req, res) => {
     .update(req.body, { where: { id: req.params.id },
         coins: req.body.coins || portfolio.username,
         quantity: req.body.quantity || portfolio.password,
-        funds: req.body.funds || portfolio.funds
+        funds: req.body.funds || portfolio.funds,
+        assets: req.body.assets || portfolio.assets
       })
       .then(() => res.status(200).send(user))
       .catch((error) => res.status(400).send(error));
